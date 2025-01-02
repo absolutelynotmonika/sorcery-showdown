@@ -1,33 +1,35 @@
 love = require("love")
 local inspect = require("lib.inspect")
 local Player = require("player")
+local Object = require("object")
+local Scene = require("scene")
+local SceneManager = require("scene_manager")
 
 function love.load()
-  -- initialise game physics
-  love.physics.setMeter(64)
-  World = love.physics.newWorld(0, 9.81 * 64, true)
+  -- initialise main scene
+  SceneManager:change_scene(Scene:new("main", {}, 9.81))
 
   -- initialise the player
   MainPlayer = Player:new(
-    love.graphics.getWidth() / 2 - 50,
-    love.graphics.getHeight() / 2 - 50,
-    nil,
-    900,
-    nil,
-    100,
-    nil,
-    100,
-    nil
+    0, 0,
+    nil, 900, nil,
+    100, nil,
+    100, nil
   )
+
+  Block = Object:new(SceneManager.current_scene.world, 0, 200, love.graphics.getWidth(), 20, "static")
+
+  SceneManager.current_scene:add_object(MainPlayer)
+  SceneManager.current_scene:add_object(Block)
 end
 
 function love.update(dt)
-  World:update(dt)
+  SceneManager:update(dt)
   MainPlayer:listen_movement(dt)
 end
 
 function love.draw()
-  MainPlayer:draw()
+  SceneManager:draw()
 
   love.graphics.setColor({0, 255, 0})
   love.graphics.print(tostring(love.timer.getFPS()), 10, 10)
